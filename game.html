@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>TikTok Racing Game</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: black;
+    }
+    canvas {
+      display: block;
+    }
+    /* 💡 Кнопки поверх канваса */
+    .donate-buttons {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+    }
+    .donate-buttons button {
+      margin: 3px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- 💡 Кнопки для теста -->
+  <div class="donate-buttons">
+    <button onclick="testDonation(0)">🚗 Донат для car1</button>
+    <button onclick="testDonation(1)">🚗 Донат для car2</button>
+    <button onclick="testDonation(2)">🚗 Донат для car3</button>
+    <button onclick="testDonation(3)">🚗 Донат для car4</button>
+    <button onclick="testDonation(4)">🚗 Донат для car5</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Загружаем дорогу
+    const road = new Image();
+    road.src = "road.png";
+
+    // Настройки дороги
+    let roadX = 0;
+    const roadSpeed = 2.5; // ⚙️ ← скорость движения дороги
+
+    // Машинки
+    const cars = [
+      { img: Object.assign(new Image(), { src: "car1.png" }), x: 100, y: 185, width: 160, height: 80 },
+      { img: Object.assign(new Image(), { src: "car2.png" }), x: 100, y: 240, width: 150, height: 200},
+      { img: Object.assign(new Image(), { src: "car3.png" }), x: 100, y: 420, width: 160, height: 100 },
+      { img: Object.assign(new Image(), { src: "car4.png" }), x: 100, y: 540, width: 160, height: 60 },
+      { img: Object.assign(new Image(), { src: "car5.png" }), x: 110, y: 650, width: 160, height: 80 }
+    ];
+
+    // Привязка подарков к машинкам
+    const giftToCar = {
+      "Rose": 0,       // 🌹  — car1
+      "TikTok": 1,     // 🎵  — car2
+      "GG": 2,         // 🏁  — car3
+      "Squirrel": 3,   // 🐿️ — car4
+      "Pumpkin": 4     // 🎃  — car5
+    };
+
+    function draw() {
+      // Двигаем дорогу влево
+      roadX -= roadSpeed;
+      if (roadX <= -road.width) roadX = 0;
+
+      // Рисуем две дороги подряд (чтобы не было белых зазоров)
+      ctx.drawImage(road, roadX, 0, road.width, canvas.height);
+      ctx.drawImage(road, roadX + road.width, 0, road.width, canvas.height);
+
+      // Рисуем машинки
+      cars.forEach(car => {
+        ctx.drawImage(car.img, car.x, car.y, car.width, car.height);
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    road.onload = draw;
+
+    // 🚗 Анимация движения машинки
+    function moveCarForward(carIndex) {
+      const car = cars[carIndex];
+      const distance = 50;   // ⚙️ ← насколько далеко едет при донате
+      const duration = 300;  // ⚙️ ← скорость анимации (меньше = быстрее)
+      const startX = car.x;
+      const targetX = startX + distance;
+      const startTime = performance.now();
+
+      function animate() {
+        const t = (performance.now() - startTime) / duration;
+        if (t < 1) {
+          car.x = startX + distance * t;
+          requestAnimationFrame(animate);
+        } else {
+          car.x = targetX;
+
+          if (car.x >= finishX) {
+          car.x = 200;
+
+           // ✅ +1 очко машине
+          car.score = (car.score || 0) + 1;
+          localStorage.setItem("car" + (carIndex + 1) + "_score", car.score);
+        }
+        }
+      }
+
+      animate();
+    }
+
+    // 🎧 Подключаем TikFinity
+    const socket = new WebSocket("ws://localhost:21213/");
+
+    socket.onopen = () => {
+      console.log("✅ Подключено к TikFinity");
+    };
+
+    socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      console.log("📩", message);
+
+      // Проверяем событие "gift"
+      if (message.event === "gift") {
+        const giftName = message.data?.giftName;
+        console.log("🎁 Получен подарок:", giftName);
+
+        const carIndex = giftToCar[giftName];
+        if (carIndex !== undefined) {
+          moveCarForward(carIndex);
+        } else {
+          console.log("⛔ Неизвестный подарок:", giftName);
+        }
+      }
+    };
+
+    socket.onerror = (err) => {
+      console.error("❌ Ошибка подключения к TikFinity:", err);
+    };
+
+    // 💡 функция для теста
+    function testDonation(carIndex) {
+      moveCarForward(carIndex);
+    }
+  </script>
+</body>
+</html>

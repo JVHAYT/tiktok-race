@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Рейтинг машин</title>
+  <style>
+    body {
+      margin: 0;
+      background: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      height: 100vh;
+      font-family: sans-serif;
+      color: white;
+      font-size: 50px;
+      text-shadow: 2px 2px 10px black;
+    }
+    .car {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+    .score {
+      font-size: 70px;
+      color: #ffd700;
+    }
+  </style>
+</head>
+<body>
+  <div class="car"><div>🚗1</div><div class="score" id="car1">0</div></div>
+  <div class="car"><div>🚗2</div><div class="score" id="car2">0</div></div>
+  <div class="car"><div>🚗3</div><div class="score" id="car3">0</div></div>
+  <div class="car"><div>🚗4</div><div class="score" id="car4">0</div></div>
+  <div class="car"><div>🚗5</div><div class="score" id="car5">0</div></div>
+
+  <script>
+    function updateScores() {
+      for (let i = 1; i <= 5; i++) {
+        const score = localStorage.getItem("car" + i + "_score") || 0;
+        document.getElementById("car" + i).textContent = score;
+      }
+    }
+
+    // Обновляем очки раз в полсекунды
+    setInterval(updateScores, 500);
+    updateScores();
+  </script>
+</body>
+</html>

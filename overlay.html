@@ -28,14 +28,19 @@
       font-size: 70px;
       color: #ffd700;
     }
+    .car img {
+      width: 120px; /* можешь поменять размер */
+      height: auto;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
-  <div class="car"><div>🚗1</div><div class="score" id="car1">0</div></div>
-  <div class="car"><div>🚗2</div><div class="score" id="car2">0</div></div>
-  <div class="car"><div>🚗3</div><div class="score" id="car3">0</div></div>
-  <div class="car"><div>🚗4</div><div class="score" id="car4">0</div></div>
-  <div class="car"><div>🚗5</div><div class="score" id="car5">0</div></div>
+  <div class="car"><img src="country(1).png" alt="country1"><div class="score" id="country1">0</div></div>
+  <div class="car"><img src="country(2).png" alt="country2"><div class="score" id="country2">0</div></div>
+  <div class="car"><img src="country(3).png" alt="country3"><div class="score" id="country3">0</div></div>
+  <div class="car"><img src="country(4).png" alt="country4"><div class="score" id="country4">0</div></div>
+  <div class="car"><img src="country(5).png" alt="country5"><div class="score" id="country5">0</div></div>
 
   <script>
     function updateScores() {
@@ -45,7 +50,6 @@
       }
     }
 
-    // Обновляем очки раз в полсекунды
     setInterval(updateScores, 500);
     updateScores();
   </script>
